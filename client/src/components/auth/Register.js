@@ -1,9 +1,13 @@
 import React, { Fragment, useState } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import { setAlert } from '../../actions/alert';
+import { register } from '../../actions/auth';
+import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
 
-const Register = ({ setAlert }) => {
+const Register = ({ setAlert, register }) => {
+  const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -21,9 +25,14 @@ const Register = ({ setAlert }) => {
     if (password !== password2) {
       setAlert("Passwords don't match", 'danger');
     } else {
-      console.log('SUCCESS');
+      register({ name, email, password });
     }
   };
+
+  // Redirect if logged in
+  if (isAuthenticated) {
+    return <Redirect to='/dashboard/'></Redirect>;
+  }
 
   return (
     <Fragment>
@@ -60,7 +69,7 @@ const Register = ({ setAlert }) => {
             type='password'
             placeholder='Password'
             name='password'
-            minLength='6'
+            // minLength='6'
             value={password}
             onChange={e => onChange(e)}
           />
@@ -70,7 +79,7 @@ const Register = ({ setAlert }) => {
             type='password'
             placeholder='Confirm Password'
             name='password2'
-            minLength='6'
+            // minLength='6'
             value={password2}
             onChange={e => onChange(e)}
           />
@@ -84,7 +93,12 @@ const Register = ({ setAlert }) => {
   );
 };
 
+Register.propTypes = {
+  setAlert: PropTypes.func.isRequired,
+  register: PropTypes.func.isRequired
+};
+
 export default connect(
   null,
-  { setAlert }
+  { setAlert, register }
 )(Register);
